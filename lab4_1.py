@@ -1,4 +1,5 @@
 import os
+from itertools import combinations
 
 def unique(i):
     args = []
@@ -8,8 +9,25 @@ def unique(i):
     return args
 
 
-FileSet = open('input.txt', 'r')
+def chunk_using_generators(lst):
+    lst = list(lst)
+    for i in range(0, len(lst), 2):
+        yield lst[i:i + 2]
+
 FileSetManipulate = open('outputSet.txt', 'w')
+
+try:
+    FileSet = open('input.txt', 'r')
+    if FileSet.read() == '':
+        raise Exception()
+    FileSet.seek(0,0)
+except:
+    FileSet = open('input.txt', 'w')
+    print("Файл пустой")
+    FileSet.write(input("Введите множество A(через пробел): ")+"\n")
+    FileSet.write(input("Введите множество B(через пробел): ")+"\n")
+    FileSet.close()
+    FileSet = open('input.txt', 'r')
 
 n = input("1 для чтения из файла, 2 для чтения с консоли: ")
 if int(n) == 1:
@@ -26,7 +44,7 @@ else:
 if n != "Error":
     input_mode = [i for i in input("Введите опреацию(Union(1), Cross(2), DiffAB(3), DiffBA(4), \
 SymmDiff(5), AdditionBA(6), PartB(7) можно несколько через пробел): ").split()]
-    if len(input_mode) <= 5:
+    if len(input_mode) <= 7:
         print("Множество A: ", SetA)
         print("Множество B: ", SetB)
         for i in unique(input_mode):
@@ -62,12 +80,15 @@ SymmDiff(5), AdditionBA(6), PartB(7) можно несколько через п
                         FileSetManipulate.write(SetAdditionBA)
                         print(SetAdditionBA, end='')
                 if i == "PartB" or i == '7':
-                    SetPartB = f"Симметричная разница множеств A и B: {SetA.symmetric_difference(SetB)}\n"
+                    r = str(list(chunk_using_generators(SetB)))
+                    r1 = r.replace('[', '{')
+                    r2 = r1.replace(']', '}')
+                    SetPartB = f"Разбиение множества B: {r2}\n"
                     FileSetManipulate.write(SetPartB)
                     print(SetPartB, end='')
-                print("Операция(ы) записана(ы) в файл.")
             else:
                 print("Некоррекный режим работы.")
+        print("Операция(ы) записана(ы) в файл.")
     else:
         print("Слишком большое количество операций", end='')
     FileSet.close()
